@@ -1,47 +1,52 @@
 import threading
 import os
 import subprocess
+import sublime
 
 from . import constants
 
 class StartHandler():
-	project_runner = None
+	start_cmd = None
+	run_thread = None
+	terminal = None
 
-	def __init__(self, project_runner):
-		self.project_runner = project_runner
-		self.project_runner.window.show_quick_panel(["Perform Project Startup", "Cancel"], self.on_start_response)
+	def __init__(self, start_cmd, start_path, project_file):
+		self.start_cmd = self.calculate_start_cmd(start_cmd)
+		self.start_path = self.calculate_start_path(start_path, project_file)
 
-	def get_run_path(self):
-		project_file_dir = os.path.dirname(self.project_runner.project_file)
+		response = sublime.ok_cancel_dialog("ProjectRunner auto startup:\n\n" + self.start_cmd)
+		self.on_start_response(response)
 
-		if "path" in self.project_runner.project_data and self.project_runner.project_data['path'] != ".":
-			return os.path.join(project_file_dir, self.project_runner.project_data['path'])
+	def calculate_start_path(self, start_path, project_file):
+		project_file_dir = os.path.dirname(project_file)
+
+		if start_path is not None and start_path != ".":
+			return os.path.join(project_file_dir, start_path)
 		else:
 			return project_file_dir
 
-	def on_start_response(self, response):
-		if response == constants.RESPONSE_YES:
-			self.project_runner.run_thread = threading.Thread(target=self.start)
-			self.project_runner.run_thread.daemon = True # Don't auto-terminate on close
-			self.project_runner.run_thread.start()
+	# "start" can be set to a non-string, in which case we'll assume they want "npm start"
+	def calculate_start_cmd(self, cmd):
+		if isinstance(cmd, str):
+			return cmd
+		else:
+			return constants.DEFAULT_STARTUP
+
+	def on_start_response(self, yes):
+		if yes:
+			self.run_thread = threading.Thread(target=self.start)
+			self.run_thread.daemon = True # Don't auto-terminate on close
+			self.run_thread.start()
 
 	def start(self):
-		cmd = ""
-
-		# "start" can be set to a non-string, in which case we'll assume they want "npm start"
-		if self.project_runner.project_data['start'] is str:
-			cmd = self.project_runner.project_data['start']
-		else:
-			cmd = constants.DEFAULT_STARTUP
-
-		#os.chdir(self.get_run_path());
-		#self.project_runner.terminal = os.system(cmd);
-		print("lets do it - " + self.get_run_path())
-		self.project_runner.terminal = subprocess.Popen("cmd.exe /K npm start", shell=True, cwd=self.get_run_path())
-		#self.project_runner.terminal = subprocess.call(cmd)
+		print("Start, path = " + self.start_path)
+		os.chdir(self.start_path);
+		self.terminal = os.system(self.start_cmd);
+		#self.terminal = subprocess.Popen("cmd.exe /K " + self.start_cmd, shell=True, cwd=self.start_path)
+		#self.terminal = subprocess.call(cmd)
 
 	def stop(self):
-		if self.project_runner.terminal is not None:
+		if self.terminal is not None:
 			print("stop")
-			#subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid = self.project_runner.terminal.pid))
-			self.project_runner.terminal = None
+			#subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid = self.terminal.pid))
+			self.terminal = None

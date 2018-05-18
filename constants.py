@@ -1,4 +1,1 @@
-RESPONSE_YES = 0
-RESPONSE_NO = 1
-
 DEFAULT_STARTUP = "npm start"

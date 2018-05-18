@@ -1,44 +1,49 @@
 import sublime
 import sublime_plugin
 
-from .starthandler import StartHandler
+from .windowmanager import WindowManager
 
 class ProjectRunner(sublime_plugin.EventListener):
-	terminal = None
-	project_file = None
-	project_data = None
-	window = None
-	view = None
-	run_thread = None
-	start_handler = None
+	window_controllers = None
+
+	def __init__(self):
+		self.window_controllers = {}
 
 	def on_activated(self, view):
+		self.on_load(view)
+		
+	def on_load(self, view):
 		win = view.window()
-		#print(1)
+
 		if win is not None:
-			#print(2)
-			project_file = win.project_file_name()
-			
-			if project_file is not None:
-				project_data = win.project_data()
+			winID = win.id()
 
-				if project_file != self.project_file:
-					print("switched project - " + project_file)
-					if self.project_file is not None:
-						self.stop()
+			if winID not in self.window_controllers:
+				print("New window")
+				self.window_controllers[winID] = WindowManager(win)
 
-					if "projectrunner" in project_data:
-						print(">> do it")
-						self.project_file = project_file
-						self.project_data = project_data['projectrunner']
-						self.window = win
-						self.view = view
-						self.start()
+			self.window_controllers[winID].on_load()
 
-	def start(self):
-		if "start" in self.project_data and self.project_data['start'] != False:
-			self.start_handler = StartHandler(self)
+	'''def on_load(self, view):
+		w = view.window()
 
-	def stop(self):
-		if True and self.start_handler is not None:
-			self.start_handler.stop()
+		if w:
+			print("onload, " + w.project_file_name())
+		else:
+			print("onload []")
+
+	def on_new(self, view):
+		w = view.window()
+
+		if w:
+			print("on_new, " + w.project_file_name())
+		else:
+			print("on_new []")
+
+	def on_selection_modified(self, view):
+		w = view.window()
+
+		if w:
+			print("on_selection_modified, " + w.project_file_name())
+		else:
+			print("on_selection_modified []")'''
