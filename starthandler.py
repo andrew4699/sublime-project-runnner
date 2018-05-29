@@ -40,10 +40,10 @@ class StartHandler():
 
 	def start(self):
 		print("Start, path = " + self.start_path)
-		os.chdir(self.start_path);
-		self.terminal = os.system(self.start_cmd);
+		#os.chdir(self.start_path);
+		#self.terminal = os.system(self.start_cmd);
 		#self.terminal = subprocess.Popen("cmd.exe /K " + self.start_cmd, shell=True, cwd=self.start_path)
-		#self.terminal = subprocess.call(cmd)
+		self.terminal = subprocess.call(self.start_cmd)
 
 	def stop(self):
 		if self.terminal is not None:
