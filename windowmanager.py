@@ -16,18 +16,11 @@ class WindowManager():
 		project_file = self.window.project_file_name()
 			
 		if project_file is not None:
-			#print("on_load: " + project_file)
-			#print("old: " + (self.project_file or ""))
-
 			if project_file != self.project_file:
 				self.project_file = project_file
 				project_data = self.window.project_data()
-				#print("switched project - " + project_file
-				#if self.project_file is not None: # Clean up last project
-				#	self.stop()
 
 				if "projectrunner" in project_data:
-					print(">> ProjectRunner settings detected")
 					self.project_data = project_data['projectrunner']
 					self.start()
 

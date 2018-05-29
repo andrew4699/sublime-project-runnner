@@ -39,14 +39,8 @@ class StartHandler():
 			self.run_thread.start()
 
 	def start(self):
-		print("Start, path = " + self.start_path)
-		#os.chdir(self.start_path);
-		#self.terminal = os.system(self.start_cmd);
-		#self.terminal = subprocess.Popen("cmd.exe /K " + self.start_cmd, shell=True, cwd=self.start_path)
 		self.terminal = subprocess.call(self.start_cmd)
 
 	def stop(self):
 		if self.terminal is not None:
-			print("stop")
-			#subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid = self.terminal.pid))
 			self.terminal = None

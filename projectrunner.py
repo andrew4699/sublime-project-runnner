@@ -18,32 +18,7 @@ class ProjectRunner(sublime_plugin.EventListener):
 		if win is not None:
 			winID = win.id()
 
-			if winID not in self.window_controllers:
-				print("New window")
+			if winID not in self.window_controllers: # New window detected
 				self.window_controllers[winID] = WindowManager(win)
 
 			self.window_controllers[winID].on_load()
-
-	'''def on_load(self, view):
-		w = view.window()
-
-		if w:
-			print("onload, " + w.project_file_name())
-		else:
-			print("onload []")
-
-	def on_new(self, view):
-		w = view.window()
-
-		if w:
-			print("on_new, " + w.project_file_name())
-		else:
-			print("on_new []")
-
-	def on_selection_modified(self, view):
-		w = view.window()
-
-		if w:
-			print("on_selection_modified, " + w.project_file_name())
-		else:
-			print("on_selection_modified []")'''
